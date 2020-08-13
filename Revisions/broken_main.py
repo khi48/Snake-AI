@@ -2,11 +2,9 @@ import pygame
 import random
 import neat
 import os
-import statistics
 
-
-import visualize
-import pickle
+# import visualize
+# import pickle
 
 # os.environ["PATH"] += os.pathsep + '/usr/local/lib/python3.7/site-packages/graphviz/__pycache__'
 
@@ -30,36 +28,21 @@ class Head:
         self.dir = 3 # 0 - up, 1 - down, 2 - left, 3 - right
         self.colour = (255, 0, 0)
 
-    # def moveUp(self):
-    #     if not(self.dir == 1):
-    #         self.dir = 0
+    def moveUp(self):
+        if not(self.dir == 1):
+            self.dir = 0
 
-    # def moveDown(self):
-    #     if not(self.dir == 0):
-    #         self.dir = 1
-
-    def moveForward(self):
-        pass
+    def moveDown(self):
+        if not(self.dir == 0):
+            self.dir = 1
 
     def moveLeft(self):
-        if (self.dir == 0):
+        if not(self.dir == 3):
             self.dir = 2
-        elif (self.dir == 1):
-            self.dir = 3
-        elif (self.dir == 2):
-            self.dir = 1
-        elif (self.dir == 3):
-            self.dir = 0
 
     def moveRight(self):
-        if (self.dir == 0):
+        if not(self.dir == 2):
             self.dir = 3
-        elif (self.dir == 1):
-            self.dir = 2
-        elif (self.dir == 2):
-            self.dir = 0
-        elif (self.dir == 3):
-            self.dir = 1
     
     def check_collisions(self, bodies):
         if (self.x <= 0):
@@ -152,126 +135,6 @@ def update_positions(head, bodies):
     for b in bodies:
         b.update()
 
-def determine_position(h, bodies, a):
-    right_to_apple = -1
-    forward_to_apple = -1
-
-    if (h.dir == 0):
-        # print('going up')
-        distance_front = h.y/WIN_HEIGHT
-        distance_left = h.x/WIN_WIDTH
-        distance_right = (WIN_WIDTH-h.x)/WIN_WIDTH
-
-        if (a.x > h.x):
-            right_to_apple = 1
-        if (a.y < h.y):
-            forward_to_apple = 1
-
-        for b in bodies:
-            if (b.x == h.x):
-                if (b.y < h.y):
-                    d =  (h.y-b.y)/WIN_HEIGHT
-                    if (d < distance_front):
-                        distance_front = d
-            if (b.y == h.y):
-                if (b.x < h.x):
-                    d = (h.x-b.x)/WIN_WIDTH
-                    if (d < distance_left):
-                        distance_left = d
-                else:
-                    d = (b.x-h.x)/WIN_WIDTH
-                    if (d < distance_right):
-                        distance_right = d
-                    
-
-
-    elif (h.dir == 1):
-        # print('going down')
-        distance_front = (WIN_HEIGHT-h.y)/WIN_HEIGHT
-        distance_left = (WIN_WIDTH-h.x)/WIN_WIDTH
-        distance_right = (h.x)/WIN_WIDTH
-
-        if (a.x < h.x):
-            right_to_apple = 1
-        if (a.y > h.y):
-            forward_to_apple = 1
-
-        for b in bodies:
-            if (b.x == h.x):
-                if (b.y > h.y):
-                    d = (b.y-h.y)/WIN_HEIGHT
-                    if (d < distance_front):
-                        distance_front = d
-            if (b.y == h.y):
-                if (b.x > h.x):
-                    d = (b.x-h.x)/WIN_WIDTH
-                    if (d < distance_left):
-                        distance_left = d
-                else:
-                    d = (h.x-b.x)/WIN_WIDTH
-                    if (d < distance_right):
-                        distance_right = d
-                    
-
-    elif (h.dir == 2):
-        # print('going left')
-        distance_front = (h.x)/WIN_WIDTH
-        distance_left = (WIN_HEIGHT-h.y)/WIN_HEIGHT
-        distance_right = (h.y)/WIN_HEIGHT
-
-        if (a.y < h.y):
-            right_to_apple = 1
-        if (a.x < h.x):
-            forward_to_apple = 1
-
-
-        for b in bodies:
-            if (b.y == h.y):
-                if (b.x < h.x):
-                    d = (h.x-b.x)/WIN_WIDTH
-                    if (d < distance_front):
-                        distance_front = d
-            if (b.x == h.x):
-                if (b.y >= h.y):
-                    d = (b.y-h.y)/WIN_HEIGHT
-                    if (d < distance_left):
-                        distance_left = d
-                else:
-                    d = (h.y-b.y)/WIN_HEIGHT
-                    if (d < distance_right):
-                        distance_right = d
-
-    elif (h.dir == 3):
-        # print('going right')
-        distance_front = (WIN_WIDTH-h.x)/WIN_WIDTH
-        distance_left = (h.y)/WIN_HEIGHT
-        distance_right = (WIN_HEIGHT-h.y)/WIN_HEIGHT
-
-        if (a.y > h.y):
-            right_to_apple = 1
-        if (a.x > h.x):
-            forward_to_apple = 1
-
-        for b in bodies:
-            if (b.y == h.y):
-                if (b.x > h.x):
-                    d = (b.x-h.x)/WIN_WIDTH 
-                    if (d < distance_front):    
-                        distance_front = d
-            if (b.x == h.x):
-                if (b.y <= h.y):
-                    d = (h.y-b.y)/WIN_HEIGHT
-                    if (d < distance_left): 
-                        distance_left = d
-                else:
-                    d = (b.y-h.y)/WIN_HEIGHT
-                    if (d < distance_right): 
-                        distance_right = d
-
-    return distance_front, distance_left, distance_right, right_to_apple, forward_to_apple
-
-
-
 def eval_genome(g, config):
 
     net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -293,26 +156,63 @@ def eval_genome(g, config):
         score = 0
         time = 200
         while(run):
-            time -= 1  
-            fitnesses[cycle] += 0.01 
+            time -= 1   
+            fitnesses[cycle] += 0.05
 
             if (time<=0):
                 run = False
                 break
-            
 
-            # Control Code
-            inputs = determine_position(h, bodies, a)
-            
-            output = net.activate((inputs)) #distance_up, distance_down, distance_left, distance_right
+            # Automated Control
+            # Inputs:
+            # head x, head y, boundaries, apple x, apple y # Failed to train after 100 generatations of 100 population -> has no sense of direction
+            # distance front, distance down, distance left, distance right, left distance to apple, upwards distance to apple
+            # if not(manual):
 
+            distance_up = h.y/WIN_HEIGHT
+            distance_down = (WIN_HEIGHT-h.y)/WIN_HEIGHT
+            distance_left = h.x/WIN_WIDTH
+            distance_right = (WIN_WIDTH-h.x)/WIN_WIDTH
+
+            left_to_apple = (h.x-a.x)/WIN_WIDTH # DIDNT THINK ABOUT THIS YET
+            up_to_apple = (h.y-a.y)/WIN_HEIGHT
+
+            for b in bodies:
+                if (b.x == h.x):
+                    if (b.y > h.y):
+                        d = (b.y-h.y)/WIN_HEIGHT
+                        if (d < distance_down):
+                            distance_down = d
+                    else:
+                        d = (h.y-b.y)/WIN_HEIGHT
+                        if (d < distance_up):
+                            distance_up = d
+                elif (b.y == h.y):
+                    if (b.x > h.x):
+                        d = (b.x-h.x)/WIN_WIDTH
+                        if (d < distance_right):
+                            distance_right = d
+                    else:
+                        d = (h.x-b.x)/WIN_WIDTH
+                        if (d < distance_left):
+                            distance_left = d
+                # else: 
+                #     print('na')
+
+            # print([distance_up, distance_down, distance_left, distance_right, left_to_apple, up_to_apple])
+            output = net.activate((left_to_apple, up_to_apple)) #distance_up, distance_down, distance_left, distance_right, 
+            
             i = output.index(max(output))
             if i == 0:
-                h.moveForward()
+                h.moveUp()
             elif i == 1:
-                h.moveLeft()
+                h.moveDown()
             elif i == 2:
+                h.moveLeft()
+            elif i == 3:
                 h.moveRight()
+            else:
+                print('something wrong with output')
 
             update_positions(h, bodies)
 
@@ -322,13 +222,18 @@ def eval_genome(g, config):
 
             if (h.check_apple(a)):
                 score += 1
-                fitnesses[cycle] += 10 + time*0.1
+                fitnesses[cycle] += (10 + time*0.1)
                 time = 200
                 end = bodies[-1]
                 bodies.append(Body(end.p_x, end.p_y, end))
                 a.reset(h, bodies)
+                if (score >= 2000/5):
+                    print("\nSCORED TOO HIGH!\n")
+                    run = False
+                    break
 
-    return [statistics.median(fitnesses), net]
+    return [sum(fitnesses)/len(fitnesses), net]
+
 
 def eval_genomes(genomes, config):
 
@@ -345,9 +250,10 @@ def eval_genomes(genomes, config):
             best_net[0] = net 
             best_net[1] = g.fitness
 
-    # print(best_net[1])
-    # if ((generation) == 0):
+    print(best_net[1])
     single_game(False, True, best_net[0])
+
+
 
 def draw_screen(win, head, bodies, apple, distance_list, score, time, gen):
     win.fill((0, 0, 0))
@@ -358,12 +264,14 @@ def draw_screen(win, head, bodies, apple, distance_list, score, time, gen):
 
     apple.draw(win)
 
-    text = FONT.render("F: {}".format(distance_list[0]), 1, (255, 255, 255))
+    text = FONT.render("U: {}".format(distance_list[0]), 1, (255, 255, 255))
     win.blit(text, (head.x, head.y))
-    text = FONT.render("L: {}".format(distance_list[1]), 1, (255, 255, 255))
-    win.blit(text, (head.x, head.y+(text.get_height()+5)))
-    text = FONT.render("R: {}".format(distance_list[2]), 1, (255, 255, 255))
+    text = FONT.render("D: {}".format(distance_list[1]), 1, (255, 255, 255))
+    win.blit(text, (head.x, head.y+text.get_height()+5))
+    text = FONT.render("L: {}".format(distance_list[2]), 1, (255, 255, 255))
     win.blit(text, (head.x, head.y+(text.get_height()+5)*2))
+    text = FONT.render("R: {}".format(distance_list[3]), 1, (255, 255, 255))
+    win.blit(text, (head.x, head.y+(text.get_height()+5)*3))
 
     text = FONT.render("Score: " + str(score), 1, (255, 255, 255))
     win.blit(text, (WIN_WIDTH-10-text.get_width(), 10))
@@ -383,8 +291,6 @@ def single_game(manual, distances=False, net=None):
     win.fill((0, 0, 0))
 
     clock = pygame.time.Clock()
-
-    # for _, g in genomes:
     
     x = random.randrange(SNAKE_WIDTH+SNAKE_WIDTH/2, WIN_WIDTH-(SNAKE_WIDTH+SNAKE_WIDTH/2), SNAKE_WIDTH) 
     y = random.randrange(SNAKE_WIDTH, WIN_WIDTH-(SNAKE_WIDTH), SNAKE_WIDTH) 
@@ -404,7 +310,6 @@ def single_game(manual, distances=False, net=None):
         clock.tick(SNAKE_SPEED)
         
         time -= 1   
-        # g.fitness += 0.05
 
         if (time<=0):
             run = False
@@ -435,18 +340,47 @@ def single_game(manual, distances=False, net=None):
         # distance front, distance down, distance left, distance right, left distance to apple, upwards distance to apple
         if not(manual):
 
-            # Control Code
-            inputs = determine_position(h, bodies, a)
-            
-            output = net.activate((inputs)) #distance_up, distance_down, distance_left, distance_right
+            distance_up = h.y/WIN_HEIGHT
+            distance_down = (WIN_HEIGHT-h.y)/WIN_HEIGHT
+            distance_left = h.x/WIN_WIDTH
+            distance_right = (WIN_WIDTH-h.x)/WIN_WIDTH
 
+            left_to_apple = (h.x-a.x)/WIN_WIDTH # DIDNT THINK ABOUT THIS YET
+            up_to_apple = (h.y-a.y)/WIN_HEIGHT
+
+            for b in bodies:
+                if (b.x == h.x):
+                    if (b.y > h.y):
+                        d = (b.y-h.y)/WIN_HEIGHT
+                        if (d < distance_down):
+                            distance_down = d
+                    else:
+                        d = (h.y-b.y)/WIN_HEIGHT
+                        if (d < distance_up):
+                            distance_up = d
+                elif (b.y == h.y):
+                    if (b.x > h.x):
+                        d = (b.x-h.x)/WIN_WIDTH
+                        if (d < distance_right):
+                            distance_right = d
+                    else:
+                        d = (h.x-b.x)/WIN_WIDTH
+                        if (d < distance_left):
+                            distance_left = d
+                        
+            output = net.activate((left_to_apple, up_to_apple)) #distance_up, distance_down, distance_left, distance_right
+            
             i = output.index(max(output))
             if i == 0:
-                h.moveForward()
+                h.moveUp()
             elif i == 1:
-                h.moveLeft()
+                h.moveDown()
             elif i == 2:
+                h.moveLeft()
+            elif i == 3:
                 h.moveRight()
+            else:
+                print('something wrong with output')
 
 
         update_positions(h, bodies)
@@ -457,19 +391,18 @@ def single_game(manual, distances=False, net=None):
 
         if (h.check_apple(a)):
             score += 1
-            # g.fitness += (10 + time*0.1)
             time = 200
             end = bodies[-1]
             bodies.append(Body(end.p_x, end.p_y, end))
             a.reset(h, bodies)
-            if (score >= 200):
+            if (score >= 50):
                 run = False
                 break
 
 
         distance_list = []
         if (distances):
-            distance_list = [inputs[0], inputs[1], inputs[2]]
+            distance_list = [distance_up, distance_down, distance_left, distance_right]
 
         draw_screen(win, h, bodies, a, distance_list, score, time, generation)
 
@@ -484,22 +417,23 @@ def run(config_path):
     p = neat.Population(config)
 
     p.add_reporter(neat.StdOutReporter(True))
-    # p.add_reporter(neat.StatisticsReporter())
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
+    p.add_reporter(neat.StatisticsReporter())
+    # stats = neat.StatisticsReporter()
+    # p.add_reporter(stats)
 
     winner = p.run(eval_genomes,100)
 
-    # Save the winner.
-    with open('winner-feedforward', 'wb') as f:
-        pickle.dump(winner, f)
+
+    # # Save the winner.
+    # with open('winner-feedforward', 'wb') as f:
+    #     pickle.dump(winner, f)
 
     # print(winner)
 
-    visualize.plot_stats(stats, ylog=True, view=True, filename="feedforward-fitness.svg")
-    visualize.plot_species(stats, view=True, filename="feedforward-speciation.svg")
+    # visualize.plot_stats(stats, ylog=True, view=True, filename="feedforward-fitness.svg")
+    # visualize.plot_species(stats, view=True, filename="feedforward-speciation.svg")
 
-    # node_names = {-1: 'd_front', -2: 'd_left', -3: 'd_right', -4: 'a_right', -5: 'a_up'}
+    # node_names = {-1: 'd_up', -2: 'd_down', -3: 'd_left', -4: 'd_right', -5: 'd_apple_x', -6: 'd_apple_y', 0: 'control'}
     # visualize.draw_net(config, winner, True, node_names=node_names)
 
     # visualize.draw_net(config, winner, view=True, node_names=node_names,
@@ -508,8 +442,6 @@ def run(config_path):
     #                    filename="winner-feedforward-enabled.gv", show_disabled=False)
     # visualize.draw_net(config, winner, view=True, node_names=node_names,
     #                    filename="winner-feedforward-enabled-pruned.gv", show_disabled=False, prune_unused=True)
-
-
 
 
 
