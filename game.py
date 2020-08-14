@@ -12,7 +12,7 @@ pygame.init()
 pygame.font.init()
 FONT = pygame.font.SysFont("comicsans", 50)
 
-SNAKE_SPEED = 15
+SNAKE_SPEED = 5
 
 WIN_WIDTH = config_game.WIN_WIDTH
 SNAKE_WIDTH = config_game.SNAKE_WIDTH
@@ -149,7 +149,27 @@ def single_game(manual, distances=False, net=None, generation=None):
 
         if (time<=0):
             run = False
+            print('Time Out!')
             break
+
+        # Automated Control
+        # Inputs:
+        # head x, head y, boundaries, apple x, apple y # Failed to train after 100 generatations of 100 population -> has no sense of direction
+        # distance front, distance down, distance left, distance right, left distance to apple, upwards distance to apple
+        inputs = determine_position(h, bodies, a)
+        if not(manual):
+            # Control Code
+            output = net.activate((inputs)) #distance_up, distance_down, distance_left, distance_right
+
+            i = output.index(max(output))
+            if i == 0:
+                h.moveForward()
+            elif i == 1:
+                h.moveLeft()
+            elif i == 2:
+                h.moveRight()
+
+
 
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -162,37 +182,22 @@ def single_game(manual, distances=False, net=None, generation=None):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         h.KeyMoveUp()
+                        break # breaking prevents multiple keys being processed at the same time
                     elif event.key == pygame.K_DOWN:
                         h.KeyMoveDown()
+                        break
                     elif event.key == pygame.K_LEFT:
                         h.KeyMoveLeft()
+                        break
                     elif event.key == pygame.K_RIGHT:
                         h.KeyMoveRight()
-
-        # Automated Control
-        # Inputs:
-        # head x, head y, boundaries, apple x, apple y # Failed to train after 100 generatations of 100 population -> has no sense of direction
-        # distance front, distance down, distance left, distance right, left distance to apple, upwards distance to apple
-        if not(manual):
-
-            # Control Code
-            inputs = determine_position(h, bodies, a)
-            
-            output = net.activate((inputs)) #distance_up, distance_down, distance_left, distance_right
-
-            i = output.index(max(output))
-            if i == 0:
-                h.moveForward()
-            elif i == 1:
-                h.moveLeft()
-            elif i == 2:
-                h.moveRight()
-
+                        break
 
         update_positions(h, bodies)
 
         if (h.check_collisions(bodies)):
             run = False
+            print('Collision!')
             break
 
         if (h.check_apple(a)):
@@ -212,6 +217,6 @@ def single_game(manual, distances=False, net=None, generation=None):
 
         draw_screen(win, h, bodies, a, distance_list, score, time, generation)
 
-
+# running this file will allow user to play a regular game of snake!
 if __name__ == "__main__":
-    single_game(True)
+    single_game(manual=True, distances=True)
