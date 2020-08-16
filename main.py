@@ -9,7 +9,6 @@ from head import Head
 from body import Body
 from apple import Apple
 
-
 import visualize
 import pickle
 
@@ -19,7 +18,7 @@ WIN_WIDTH = config_game.WIN_WIDTH
 SNAKE_WIDTH = config_game.SNAKE_WIDTH
 
 generation = 0
-
+display = False
 
 def eval_genome(g, config):
 
@@ -94,9 +93,9 @@ def eval_genomes(genomes, config):
             best_net[0] = net 
             best_net[1] = g.fitness
 
-    # print(best_net[1])
-    # if ((generation) == 0):
-    game.single_game(False, True, best_net[0], generation)
+        # print(stats.best_genome())
+    if (display):
+        game.single_game(False, False, best_net[0], generation)
 
 
 # Automated Control
@@ -117,8 +116,6 @@ def run(config_path):
     with open('winner-feedforward', 'wb') as f:
         pickle.dump(winner, f)
 
-    # print(winner)
-
     visualize.plot_stats(stats, ylog=True, view=True, filename="feedforward-fitness.svg")
     visualize.plot_species(stats, view=True, filename="feedforward-speciation.svg")
 
@@ -137,186 +134,20 @@ def run(config_path):
 
 
 if __name__ == "__main__":
+    # global display
+
+    d = input("Display each generation [y, n]: ").rstrip('\n')
+
+    while(1):
+        if (d == 'y'):
+            display = True
+            break
+        elif (d == 'n'):
+            break
+        d = input("Display each generation [y, n]: ").rstrip('\n')
+    
+
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, "config-feedforward.txt")
     print(config_path)
     run(config_path)
-
-
-# if (h.dir == 0):
-#     # print('going up')
-#     distance_front = h.y
-#     distance_left = h.x
-#     distance_right = WIN_WIDTH-h.x
-
-#     for b in bodies:
-#         if ((b.x == h.x) and (b.y <= h.y)):
-#             distance_front = h.y-b.y
-#         if (b.y == h.y):
-#             if (b.x <= h.x):
-#                 distance_left = h.x-b.x
-#             else:
-#                 distance_right = b.x-h.x
-                
-
-
-# elif (h.dir == 1):
-#     # print('going down')
-#     distance_front = WIN_WIDTH-h.y
-#     distance_left = WIN_WIDTH-h.x
-#     distance_right = h.x
-
-#     for b in bodies:
-#         if ((b.x == h.x) and (b.y >= h.y)):
-#             distance_front = b.y-h.y
-#         if (b.y == h.y):
-#             if (b.x >= h.x):
-#                 distance_left = b.x-h.x
-#             else:
-#                 distance_right = h.x-b.x
-                
-
-# elif (h.dir == 2):
-#     # print('going left')
-#     distance_front = h.x
-#     distance_left = WIN_WIDTH-h.y
-#     distance_right = h.y
-
-#     for b in bodies:
-#         if ((b.y == h.y) and (b.x <= h.x)):
-#             distance_front = h.x-b.x
-#         if (b.x == h.x):
-#             if (b.y >= h.y):
-#                 distance_left = b.y-h.y
-#             else:
-#                 distance_right = h.y-b.y
-
-# elif (h.dir == 3):
-#     # print('going right')
-#     distance_front = WIN_WIDTH-h.x
-#     distance_left = h.y
-#     distance_right = WIN_WIDTH-h.y
-
-#     for b in bodies:
-#         if ((b.y == h.y) and (b.x >= h.x)):
-#             distance_front = b.x-h.x
-#         if (b.x == h.x):
-#             if (b.y <= h.y):
-#                 distance_left = h.y-b.y
-#             else:
-#                 distance_right = b.y-h.y
-                
-            
-
-# Latest control method. Converting to binary system to avoid collisions
-# if (h.dir == 0):
-#         # print('going up')
-#         distance_front = h.y/WIN_WIDTH
-#         distance_left = h.x/WIN_WIDTH
-#         distance_right = (WIN_WIDTH-h.x)/WIN_WIDTH
-
-#         if (a.x > h.x):
-#             right_to_apple = 1
-#         if (a.y < h.y):
-#             forward_to_apple = 1
-
-#         for b in bodies:
-#             if (b.x == h.x):
-#                 if (b.y < h.y):
-#                     d =  (h.y-b.y)/WIN_WIDTH
-#                     if (d < distance_front):
-#                         distance_front = d
-#             if (b.y == h.y):
-#                 if (b.x < h.x):
-#                     d = (h.x-b.x)/WIN_WIDTH
-#                     if (d < distance_left):
-#                         distance_left = d
-#                 else:
-#                     d = (b.x-h.x)/WIN_WIDTH
-#                     if (d < distance_right):
-#                         distance_right = d
-                    
-
-
-#     elif (h.dir == 1):
-#         # print('going down')
-#         distance_front = (WIN_WIDTH-h.y)/WIN_WIDTH
-#         distance_left = (WIN_WIDTH-h.x)/WIN_WIDTH
-#         distance_right = (h.x)/WIN_WIDTH
-
-#         if (a.x < h.x):
-#             right_to_apple = 1
-#         if (a.y > h.y):
-#             forward_to_apple = 1
-
-#         for b in bodies:
-#             if (b.x == h.x):
-#                 if (b.y > h.y):
-#                     d = (b.y-h.y)/WIN_WIDTH
-#                     if (d < distance_front):
-#                         distance_front = d
-#             if (b.y == h.y):
-#                 if (b.x > h.x):
-#                     d = (b.x-h.x)/WIN_WIDTH
-#                     if (d < distance_left):
-#                         distance_left = d
-#                 else:
-#                     d = (h.x-b.x)/WIN_WIDTH
-#                     if (d < distance_right):
-#                         distance_right = d
-                    
-
-#     elif (h.dir == 2):
-#         # print('going left')
-#         distance_front = (h.x)/WIN_WIDTH
-#         distance_left = (WIN_WIDTH-h.y)/WIN_WIDTH
-#         distance_right = (h.y)/WIN_WIDTH
-
-#         if (a.y < h.y):
-#             right_to_apple = 1
-#         if (a.x < h.x):
-#             forward_to_apple = 1
-
-
-#         for b in bodies:
-#             if (b.y == h.y):
-#                 if (b.x < h.x):
-#                     d = (h.x-b.x)/WIN_WIDTH
-#                     if (d < distance_front):
-#                         distance_front = d
-#             if (b.x == h.x):
-#                 if (b.y >= h.y):
-#                     d = (b.y-h.y)/WIN_WIDTH
-#                     if (d < distance_left):
-#                         distance_left = d
-#                 else:
-#                     d = (h.y-b.y)/WIN_WIDTH
-#                     if (d < distance_right):
-#                         distance_right = d
-
-#     elif (h.dir == 3):
-#         # print('going right')
-#         distance_front = (WIN_WIDTH-h.x)/WIN_WIDTH
-#         distance_left = (h.y)/WIN_WIDTH
-#         distance_right = (WIN_WIDTH-h.y)/WIN_WIDTH
-
-#         if (a.y > h.y):
-#             right_to_apple = 1
-#         if (a.x > h.x):
-#             forward_to_apple = 1
-
-#         for b in bodies:
-#             if (b.y == h.y):
-#                 if (b.x > h.x):
-#                     d = (b.x-h.x)/WIN_WIDTH 
-#                     if (d < distance_front):    
-#                         distance_front = d
-#             if (b.x == h.x):
-#                 if (b.y <= h.y):
-#                     d = (h.y-b.y)/WIN_WIDTH
-#                     if (d < distance_left): 
-#                         distance_left = d
-#                 else:
-#                     d = (b.y-h.y)/WIN_WIDTH
-#                     if (d < distance_right): 
-#                         distance_right = d
