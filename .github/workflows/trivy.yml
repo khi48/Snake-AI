@@ -27,16 +27,26 @@ jobs:
   trivy-docker:
     name: Scan Docker image
     runs-on: ubuntu-latest
-    if: hashFiles('Dockerfile') != ''
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check for Dockerfile
+        id: check
+        run: |
+          if [ -f Dockerfile ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build image
+        if: steps.check.outputs.exists == 'true'
         env:
           IMAGE_NAME: ${{ github.repository }}
         run: docker build -t "$IMAGE_NAME:ci" .
 
       - name: Run Trivy image scan
+        if: steps.check.outputs.exists == 'true'
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ github.repository }}:ci
